@@ -4,7 +4,9 @@ const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_PATH = path.join(__dirname, 'data.db');
+const DB_PATH = process.env.VERCEL
+  ? path.join('/tmp', 'cpr-site.db')
+  : path.join(__dirname, 'data.db');
 const PREVIEW_MODE = process.env.PREVIEW_MODE === '1';
 
 app.use(express.json());
