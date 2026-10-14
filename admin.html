@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administration | Cénacle de Paix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+  <style>
+    :root { --admin-navy: #102b52; --admin-blue: #1a5ab8; --admin-ink: #1d2430; --admin-muted: #536174; --admin-line: #dce4ee; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: #f2f6fb; color: var(--admin-ink); font-family: "DM Sans", "Segoe UI", sans-serif; }
+    .admin-shell { width: min(1180px, calc(100% - 40px)); margin: 40px auto 64px; }
+    .admin-header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
+    .admin-kicker { margin: 0 0 8px; color: var(--admin-blue); font-size: 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .admin-title { margin: 0; color: var(--admin-navy); font-size: clamp(30px, 5vw, 42px); line-height: 1.1; }
+    .admin-subtitle { margin: 10px 0 0; color: var(--admin-muted); }
+    .admin-actions, .button-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .admin-layout { display: grid; gap: 22px; }
+    .admin-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 22px; align-items: start; }
+    .panel { min-width: 0; padding: 24px; background: #fff; border: 1px solid var(--admin-line); border-radius: 8px; box-shadow: 0 12px 30px rgba(16,43,82,.05); }
+    .panel-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 18px; }
+    .panel h2 { margin: 0; color: var(--admin-navy); font-size: 22px; }
+    .panel-heading p { margin: 0; color: var(--admin-muted); font-size: 13px; }
+    .meeting-list, .social-list { display: grid; gap: 12px; }
+    .meeting-item, .social-item { padding: 16px; border: 1px solid var(--admin-line); border-radius: 6px; background: #fbfdff; }
+    .meeting-item strong { display: block; margin-bottom: 4px; color: var(--admin-navy); font-size: 16px; }
+    .meeting-item p { margin: 0 0 12px; color: var(--admin-muted); font-size: 13px; }
+    .meeting-meta { margin: 0; color: var(--admin-muted); font-size: 12px; overflow-wrap: anywhere; }
+    .admin-form { display: grid; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    label { color: #304768; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #cbd6e3; border-radius: 5px; background: #fff; color: var(--admin-ink); font: inherit; }
+    input:focus { outline: 3px solid rgba(26,90,184,.16); border-color: var(--admin-blue); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 9px 14px; border: 1px solid transparent; border-radius: 5px; font: inherit; font-size: 13px; font-weight: 800; text-decoration: none; cursor: pointer; }
+    .btn-primary { background: var(--admin-blue); color: #fff; }
+    .btn-primary:hover { background: var(--admin-navy); }
+    .btn-secondary { border-color: var(--admin-line); background: #fff; color: var(--admin-navy); }
+    .btn-danger { border-color: #f0c5c5; background: #fff7f7; color: #a12626; }
+    .button-row { margin-top: 4px; }
+    .social-grid { display: grid; }
+    .social-field { display: grid; grid-template-columns: 130px minmax(0, 1fr) 90px; gap: 12px; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--admin-line); }
+    .social-field:last-child { border-bottom: 0; }
+    .social-field label { font-size: 13px; letter-spacing: 0; text-transform: none; }
+    .social-field input { min-width: 0; }
+    .social-icon-field { display: grid; gap: 5px; }
+    .social-icon-field label { color: var(--admin-muted); font-size: 10px; }
+    .social-list-item { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--admin-line); }
+    .social-list-item:last-child { border-bottom: 0; }
+    .social-list-item strong { color: var(--admin-navy); }
+    .social-list-item a { color: var(--admin-blue); font-size: 13px; overflow-wrap: anywhere; }
+    .status { min-height: 22px; margin: 0 0 14px; color: var(--admin-muted); font-size: 13px; }
+    .status[data-type="error"] { color: #a12626; }
+    .status[data-type="success"] { color: #176443; }
+    .empty-state { margin: 0; padding: 18px; background: #f7faff; color: var(--admin-muted); font-size: 14px; }
+    @media (max-width: 800px) { .admin-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) {
+      .admin-shell { width: calc(100% - 28px); margin: 24px auto 40px; }
+      .admin-header { align-items: start; flex-direction: column; }
+      .panel { padding: 18px; }
+      .panel-heading { align-items: start; flex-direction: column; gap: 4px; }
+      .social-field { grid-template-columns: 1fr 72px; gap: 8px; }
+      .social-field > label { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="admin-shell">
+      <header class="admin-header">
+        <div>
+          <p class="admin-kicker">Cénacle de Paix · Génération Amani</p>
+          <h1 class="admin-title">Administration</h1>
+          <p class="admin-subtitle">Gérez les rencontres et les liens sociaux visibles sur le site.</p>
+        </div>
+        <div class="admin-actions"><a class="btn btn-secondary" href="/">Voir le site ↗</a></div>
+      </header>
+      <p id="adminStatus" class="status" role="status" aria-live="polite"></p>
+
+      <div class="admin-layout">
+      <div class="admin-grid">
+        <section class="panel" aria-labelledby="meetings-heading">
+          <div class="panel-heading"><h2 id="meetings-heading">Rencontres</h2><p>Ajoutez, modifiez ou retirez un rendez-vous.</p></div>
+          <div id="meetingList" class="meeting-list"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="meeting-form-heading">
+          <div class="panel-heading"><h2 id="meeting-form-heading">Ajouter une rencontre</h2></div>
+          <form id="meetingForm" class="admin-form">
+            <div class="field">
+              <label for="day">Jour</label>
+              <input id="day" name="day" type="text" placeholder="Mercredi" required>
+            </div>
+            <div class="field">
+              <label for="time">Heure</label>
+              <input id="time" name="time" type="text" placeholder="21h00" required>
+            </div>
+            <div class="field">
+              <label for="location">Lieu</label>
+              <input id="location" name="location" type="text" placeholder="en ligne" required>
+            </div>
+            <div class="field">
+              <label for="title">Titre</label>
+              <input id="title" name="title" type="text" placeholder="Thème de prière" required>
+            </div>
+            <div class="field">
+              <label for="verse">Verset</label>
+              <input id="verse" name="verse" type="text" placeholder="Luc 10:30–37">
+            </div>
+            <div class="field">
+              <label for="leader">Animation</label>
+              <input id="leader" name="leader" type="text" placeholder="Sœur Marie">
+            </div>
+            <div class="field">
+              <label for="moderator">Modération</label>
+              <input id="moderator" name="moderator" type="text" placeholder="Jean">
+            </div>
+            <div class="button-row">
+              <button id="meetingSubmit" class="btn btn-primary" type="submit">Ajouter la rencontre</button>
+              <button id="cancelMeetingEdit" class="btn btn-secondary" type="button" hidden>Annuler</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <div class="admin-grid">
+        <section class="panel" aria-labelledby="socials-heading">
+          <div class="panel-heading"><h2 id="socials-heading">Liens enregistrés</h2></div>
+          <div id="socialList" class="social-list"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="social-form-heading">
+          <div class="panel-heading"><h2 id="social-form-heading">Réseaux sociaux</h2><p>Les modifications sont appliquées au site public.</p></div>
+          <form id="socialForm" class="admin-form">
+            <div class="social-grid">
+              <div class="social-field" data-platform="facebook"><label for="social-facebook">Facebook</label><input id="social-facebook" name="url" type="url" placeholder="https://facebook.com/…"><div class="social-icon-field"><label for="icon-facebook">Icône</label><input id="icon-facebook" name="icon" maxlength="4" value="f"></div></div>
+              <div class="social-field" data-platform="instagram"><label for="social-instagram">Instagram</label><input id="social-instagram" name="url" type="url" placeholder="https://instagram.com/…"><div class="social-icon-field"><label for="icon-instagram">Icône</label><input id="icon-instagram" name="icon" maxlength="4" value="◎"></div></div>
+              <div class="social-field" data-platform="tiktok"><label for="social-tiktok">TikTok</label><input id="social-tiktok" name="url" type="url" placeholder="https://tiktok.com/@…"><div class="social-icon-field"><label for="icon-tiktok">Icône</label><input id="icon-tiktok" name="icon" maxlength="4" value="♪"></div></div>
+              <div class="social-field" data-platform="x"><label for="social-x">X</label><input id="social-x" name="url" type="url" placeholder="https://x.com/…"><div class="social-icon-field"><label for="icon-x">Icône</label><input id="icon-x" name="icon" maxlength="4" value="X"></div></div>
+            </div>
+            <div class="button-row">
+              <button class="btn btn-primary" type="submit">Enregistrer les liens</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      </div>
+  </main>
+
+  <script>
+    const meetingList = document.getElementById('meetingList');
+    const socialList = document.getElementById('socialList');
+    const meetingForm = document.getElementById('meetingForm');
+    const socialForm = document.getElementById('socialForm');
+    const statusElement = document.getElementById('adminStatus');
+    let editingMeetingId = null;
+
+    function showStatus(message, type = '') {
+      statusElement.textContent = message;
+      statusElement.dataset.type = type;
+    }
+
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || 'Request failed');
+      }
+      return response.json();
+    }
+
+    async function loadMeetings() {
+      const data = await fetchJson('/api/meetings');
+      meetingList.innerHTML = '';
+
+      if (!data.meetings.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-state';
+        empty.textContent = 'Aucune rencontre enregistrée.';
+        meetingList.appendChild(empty);
+        return;
+      }
+
+      data.meetings.forEach((meeting) => {
+        const item = document.createElement('div');
+        item.className = 'meeting-item';
+        const heading = document.createElement('strong');
+        heading.textContent = `${meeting.day} · ${meeting.time}`;
+        const title = document.createElement('p');
+        title.textContent = meeting.title;
+        const meta = document.createElement('p');
+        meta.className = 'meeting-meta';
+        meta.textContent = [meeting.location, meeting.verse, meeting.leader, meeting.moderator].filter(Boolean).join(' · ');
+        const actions = document.createElement('div');
+        actions.className = 'button-row';
+        actions.style.marginTop = '12px';
+        const edit = document.createElement('button');
+        edit.className = 'btn btn-secondary';
+        edit.type = 'button';
+        edit.dataset.editMeeting = meeting.id;
+        edit.textContent = 'Modifier';
+        const remove = document.createElement('button');
+        remove.className = 'btn btn-danger';
+        remove.type = 'button';
+        remove.dataset.deleteMeeting = meeting.id;
+        remove.textContent = 'Supprimer';
+        actions.append(edit, remove);
+        item.append(heading, title, meta, actions);
+        meetingList.appendChild(item);
+      });
+    }
+
+    async function loadSocials() {
+      const data = await fetchJson('/api/socials');
+      socialList.innerHTML = '';
+
+      data.socials.forEach((social) => {
+        const item = document.createElement('div');
+        item.className = 'social-list-item';
+        const label = document.createElement('strong');
+        label.textContent = social.label;
+        const link = document.createElement('a');
+        link.textContent = social.url;
+        link.href = social.url;
+        link.target = '_blank';
+        link.rel = 'noreferrer';
+        item.append(label, link);
+        socialList.appendChild(item);
+
+        const row = socialForm.querySelector(`[data-platform="${CSS.escape(social.platform)}"]`);
+        if (row) {
+          row.querySelector('[name="url"]').value = social.url;
+          row.querySelector('[name="icon"]').value = social.icon;
+        }
+      });
+    }
+
+    function resetMeetingForm() {
+      editingMeetingId = null;
+      meetingForm.reset();
+      document.getElementById('meeting-form-heading').textContent = 'Ajouter une rencontre';
+      document.getElementById('meetingSubmit').textContent = 'Ajouter la rencontre';
+      document.getElementById('cancelMeetingEdit').hidden = true;
+    }
+
+    meetingForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const wasEditing = editingMeetingId !== null;
+      const form = new FormData(event.target);
+      const payload = {
+        day: form.get('day'),
+        time: form.get('time'),
+        location: form.get('location'),
+        title: form.get('title'),
+        verse: form.get('verse'),
+        leader: form.get('leader'),
+        moderator: form.get('moderator')
+      };
+
+      try {
+        await fetchJson(editingMeetingId ? `/api/meetings/${editingMeetingId}` : '/api/meetings', {
+          method: editingMeetingId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        resetMeetingForm();
+        await loadMeetings();
+        showStatus(wasEditing ? 'Rencontre mise à jour.' : 'Rencontre ajoutée.', 'success');
+      } catch (error) {
+        showStatus(error.message || 'Échec de l’enregistrement.', 'error');
+      }
+    });
+
+    document.getElementById('cancelMeetingEdit').addEventListener('click', resetMeetingForm);
+
+    socialForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const rows = [...socialForm.querySelectorAll('.social-field')].map((field) => {
+        const platform = field.dataset.platform;
+        const values = field.querySelectorAll('input');
+        return {
+          platform,
+          label: platform === 'x' ? 'X' : platform.charAt(0).toUpperCase() + platform.slice(1),
+          url: values[0].value.trim(),
+          icon: values[1].value.trim() || '•'
+        };
+      }).filter((social) => social.url && social.url !== '#');
+
+      try {
+        await fetchJson('/api/socials', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(rows)
+        });
+
+        await loadSocials();
+        showStatus('Liens sociaux mis à jour.', 'success');
+      } catch (error) {
+        showStatus(error.message || 'Échec de l’enregistrement.', 'error');
+      }
+    });
+
+    document.addEventListener('click', async (event) => {
+      const editButton = event.target.closest('[data-edit-meeting]');
+      if (editButton) {
+        const data = await fetchJson('/api/meetings');
+        const meeting = data.meetings.find((item) => String(item.id) === editButton.dataset.editMeeting);
+        if (!meeting) return;
+        editingMeetingId = meeting.id;
+        Object.entries(meeting).forEach(([key, value]) => {
+          const input = meetingForm.elements.namedItem(key);
+          if (input) input.value = value || '';
+        });
+        document.getElementById('meeting-form-heading').textContent = 'Modifier la rencontre';
+        document.getElementById('meetingSubmit').textContent = 'Enregistrer les modifications';
+        document.getElementById('cancelMeetingEdit').hidden = false;
+        meetingForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      const deleteButton = event.target.closest('[data-delete-meeting]');
+      if (!deleteButton) return;
+      if (!window.confirm('Supprimer cette rencontre ?')) return;
+      await fetchJson(`/api/meetings/${deleteButton.dataset.deleteMeeting}`, { method: 'DELETE' });
+      await loadMeetings();
+      showStatus('Rencontre supprimée.', 'success');
+    });
+
+    async function initializeAdmin() {
+      try {
+        await Promise.all([loadMeetings(), loadSocials()]);
+        showStatus('Données chargées depuis la base de données.');
+      } catch (error) {
+        showStatus(error.message || 'Impossible de charger les données.', 'error');
+      }
+    }
+
+    initializeAdmin();
+  </script>
+</body>
+</html>
